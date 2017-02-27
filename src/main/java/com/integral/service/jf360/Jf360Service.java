@@ -1,11 +1,10 @@
 package com.integral.service.jf360;
 
 import com.alibaba.fastjson.JSONObject;
-import com.integral.service.tuniu.Tuniu;
+import com.integral.tools.MD5;
 import com.integral.utils.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +12,6 @@ import javax.net.ssl.*;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 

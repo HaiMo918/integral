@@ -17,6 +17,7 @@ public class JuneyAirController {
     @Resource
     JuneyAir mJuneyAir;
 
+    @Deprecated
     @ResponseBody
     @RequestMapping(value = "/request_jx_code",method = RequestMethod.POST)
     public JfResult requestJuneyCode(){

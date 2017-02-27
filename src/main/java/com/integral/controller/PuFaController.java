@@ -1,6 +1,6 @@
 package com.integral.controller;
 
-import com.integral.servicetest.PuFaServer;
+import com.integral.service.PuFaServer;
 import com.integral.tools.Decrypter;
 import com.integral.utils.Constants;
 import com.integral.utils.JfResult;

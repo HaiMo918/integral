@@ -15,7 +15,7 @@ public class Common {
         return uuid.toString();
     }
 
-    public static String inputStreamToString(InputStream is) throws Exception{
+    public static synchronized String inputStreamToString(InputStream is) throws Exception{
         StringBuilder sb = new StringBuilder();
         String line;
         BufferedReader br = new BufferedReader(new InputStreamReader(is,"utf-8"));

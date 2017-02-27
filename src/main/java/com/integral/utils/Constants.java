@@ -32,4 +32,14 @@ public interface Constants {
         public static final String ACCEPT_ENCODING="Accept-Encoding";
         public static final String ACCEPT_LANGUAGE="Accept-Language";
     }
+
+    enum PlatForm{
+        WINDOWS(0),LINUX(1);
+        private int platform;
+        PlatForm(int platform){
+            this.platform=platform;
+        }
+    }
+
+    PlatForm platform=PlatForm.WINDOWS;
 }

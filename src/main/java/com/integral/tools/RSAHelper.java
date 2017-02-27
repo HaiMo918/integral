@@ -1,4 +1,4 @@
-package com.integral.utils;
+package com.integral.tools;
 
 /**
  * Created by kris on 2017/1/16.

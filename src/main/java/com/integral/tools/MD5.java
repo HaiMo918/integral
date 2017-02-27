@@ -1,4 +1,4 @@
-package com.integral.utils;
+package com.integral.tools;
 
 import java.security.MessageDigest;
 

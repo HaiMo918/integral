@@ -2,6 +2,7 @@ package com.integral.service.miui;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
+import com.integral.tools.MD5;
 import com.integral.utils.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,11 +16,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

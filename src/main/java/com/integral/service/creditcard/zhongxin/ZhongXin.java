@@ -1,6 +1,7 @@
 package com.integral.service.creditcard.zhongxin;//Created by xiacheng on 16/10/10.
 
 import com.alibaba.fastjson.JSONObject;
+import com.integral.tools.MD5;
 import com.integral.utils.*;
 
 import org.springframework.stereotype.Service;

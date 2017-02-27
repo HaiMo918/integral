@@ -1,5 +1,8 @@
-package com.integral.servicetest;
+package com.integral.service;
 
+/**
+ * Created by kris on 2017/2/27.
+ */
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -26,9 +29,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by jianfeng on 2016/11/1.
- */
 @Service
 public class PuFaServer implements IQueryIntegral {
 
