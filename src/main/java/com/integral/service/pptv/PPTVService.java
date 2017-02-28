@@ -139,15 +139,16 @@ public class PPTVService implements IQueryIntegral{
     }
 
 
-//    public static void main(String[] args){
-//        try{
-//            JfRequest request = new JfRequest();
-//            request.setAccount("18516318026");
-//            request.setPassword("wgy123");
-//            PPTVService service = new PPTVService();
-//            service.queryIntegral(request);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
+    public static void main(String[] args){
+        try{
+            JfRequest request = new JfRequest();
+            request.setAccount("18516318026");
+            request.setPassword("wgy123");
+            PPTVService service = new PPTVService();
+            JfResult result = service.queryIntegral(request);
+            System.out.println(result.getPoints());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

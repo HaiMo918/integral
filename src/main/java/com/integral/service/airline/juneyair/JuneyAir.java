@@ -168,6 +168,7 @@ public class JuneyAir implements IQueryIntegral{
         connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE,Common.buildCookieString(cookie));
     }
+
     public static void main(String[] args){
         try{
             JuneyAir air = new JuneyAir();
