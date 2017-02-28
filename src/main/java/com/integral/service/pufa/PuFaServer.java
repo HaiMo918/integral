@@ -1,4 +1,4 @@
-package com.integral.service;
+package com.integral.service.pufa;
 
 /**
  * Created by kris on 2017/2/27.
