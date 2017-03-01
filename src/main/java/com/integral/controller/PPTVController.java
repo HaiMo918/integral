@@ -1,6 +1,6 @@
 package com.integral.controller;
 
-import com.integral.service.pptv.PPTVService;
+import com.integral.service.video.pptv.PPTVService;
 import com.integral.tools.Decrypter;
 import com.integral.utils.JfResult;
 import org.springframework.stereotype.Controller;

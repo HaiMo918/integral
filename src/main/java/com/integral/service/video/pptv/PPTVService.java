@@ -1,10 +1,9 @@
-package com.integral.service.pptv;
+package com.integral.service.video.pptv;
 
 import com.alibaba.fastjson.JSONObject;
 import com.integral.utils.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,6 @@ import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
