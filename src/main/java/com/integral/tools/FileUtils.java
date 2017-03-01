@@ -13,4 +13,8 @@ public class FileUtils {
     public static File getTmpFile(String fileName) {
         return new File(String.format("%s%s%s", tmpDir, separator, fileName));
     }
+
+    public static String readURLPicture(String picUrl) throws Exception{
+        return null;
+    }
 }

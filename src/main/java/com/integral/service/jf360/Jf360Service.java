@@ -1,185 +1,171 @@
 package com.integral.service.jf360;
 
-import com.alibaba.fastjson.JSONObject;
 import com.integral.tools.MD5;
 import com.integral.utils.*;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.sync.HttpClients;
+import org.apache.hc.client5.http.methods.CloseableHttpResponse;
+import org.apache.hc.client5.http.methods.HttpGet;
+import org.apache.hc.client5.http.methods.HttpPost;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.*;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by liuqinghai on 2017/1/16.
  */
 @Service
 public class Jf360Service implements IQueryIntegral{
-    private MyX509TrustManager xtm = new MyX509TrustManager();
-    private MyHostNameVerify mhv = new MyHostNameVerify();
-    private SSLContext sslContext = null;
-
-    public Jf360Service() throws Exception{
-        sslContext = SSLContext.getInstance("SSL");
-        X509TrustManager[] xtmArray = new X509TrustManager[]{xtm};
-        sslContext.init(null, xtmArray, new java.security.SecureRandom());
-    }
 
     @Override
     public JfResult requestVerifyCode(JfRequest request) throws Exception {
+        String userName=request.getAccount();
+        HttpGet httpGet = new HttpGet("http://login.360.cn/?callback=jQuery"+System.currentTimeMillis()+"&src=pcw_i360&from=pcw_i360&charset=UTF-8&requestScema=http&o=sso&m=checkNeedCaptcha&account="+userName+"&captchaApp=i360&_="+System.currentTimeMillis());
+        String text = XHttpClient.get(httpGet);
+        if(StringUtils.contains(text, "\"captchaFlag\":true")){
+            String url= getJsonValue(text,"captchaUrl").replace("\\/","/");
+            JfResult result=new JfResult();
+            result.setData(url);
+            return result;
+        }
         return null;
     }
 
     @Override
     public JfResult queryIntegral(JfRequest request) throws Exception {
-        Map<String,String> cookie = new HashMap<>();
-        JfResult result = new JfResult();
-        String user=request.getAccount();
-        String password=new MD5().bytesToMD5(request.getPassword().getBytes());
-        String token=getToken(cookie,user);
-        openJifenPage(cookie);
-        get_user_info(cookie);
-        login(cookie,user,password,token);
-        String apptoken=getAppToken(cookie);
-        if ("".equals(apptoken)){
-            result.setMessage("登录失败");
-            return result;
+        String userName=request.getAccount();
+        String pwd=request.getPassword();
+        String token = getToken(userName);
+        String code=request.getCode();
+        Map<String, String> params=new HashMap<>();
+        params.put("src","pcw_home");
+        params.put("from","pcw_home");
+        params.put("charset","UTF-8");
+        params.put("requestScema","https");
+        params.put("o","sso");
+        params.put("m","login");
+        params.put("lm","0");
+        params.put("captFlag","1");
+        params.put("rtype","data");
+        params.put("validatelm","0");
+        params.put("isKeepAlive","1");
+        params.put("captchaApp","i360");
+        params.put("userName",userName);
+        params.put("type","normal");
+        params.put("account",userName);
+        MD5 md5=new MD5();
+        params.put("password", md5.bytesToMD5(pwd.getBytes()).toLowerCase());
+        params.put("captcha",code);
+        params.put("token",token);
+        params.put("proxy","http://i.360.cn/psp_jump.html");
+        params.put("callback","QiUserJsonp"+System.currentTimeMillis());
+        params.put("func","QiUserJsonp"+System.currentTimeMillis());
+
+        // 创建http POST请求
+        HttpPost httpPost = new HttpPost("https://login.360.cn/");
+//        httpPost.setConfig(this.requestConfig);
+        if (params != null) {
+            // 设置2个post参数，一个是scope、一个是q
+            List<BasicNameValuePair> parameters = new ArrayList<>();
+            for (String key : params.keySet()) {
+                parameters.add(new BasicNameValuePair(key, params.get(key)));
+            }
+            // 构造一个form表单式的实体
+            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, Charset.forName("utf-8"));
+            formEntity.setContentType("application/x-www-form-urlencoded");
+            // 将请求实体设置到httpPost对象中
+            httpPost.setEntity(formEntity);
         }
-        String jfurl="http://jifen.360.cn/ajax_signin_count.html?token="+apptoken;
-        String jf = getJf(jfurl,cookie);
-        result.setPoints(jf);
+        httpPost.addHeader("Host","login.360.cn");
+        httpPost.addHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0");
+        httpPost.addHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        httpPost.addHeader("Accept-Language","zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3");
+        httpPost.addHeader("Accept-Encoding","gzip, deflate, br");
+        httpPost.addHeader("Referer","http://i.360.cn/login/?src=pcw_home&destUrl=http%3A%2F%2Fwww.360.com%2F");
+        httpPost.addHeader("Connection","keep-alive");
+        httpPost.addHeader("Upgrade-Insecure-Requests","1");
+        CookieStore cookieStore = new BasicCookieStore();
+        CloseableHttpClient httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+        CloseableHttpResponse response = null;
+        HttpClientContext context = null;
+        context = HttpClientContext.create();
+        context.setCookieStore(cookieStore);
+        response = httpClient.execute(httpPost,context);
+        String text = EntityUtils.toString(response.getEntity(), Charset.forName("UTF-8"));
+        String regLoginMsg="errmsg=([^&]+)";
+        Pattern patternLogin = Pattern.compile(regLoginMsg);
+        // 忽略大小写的写法
+        Matcher matcherLogin = patternLogin.matcher(text);
+        String logonErr=null;
+        if (matcherLogin.find()){
+            logonErr= matcherLogin.group(1);
+            String msg = URLDecoder.decode(logonErr, "utf-8");
+            if(StringUtils.isNotBlank(msg)){
+                JfResult result=new JfResult();
+                result.setReason(msg);
+                return result;
+            }
+        }
+
+        //获取积分
+        HttpGet httpGet = new HttpGet("http://jifen.360.cn/index/orderlist");
+        HttpResponse httpResponse =  httpClient.execute(httpGet,context);
+        String jfPage = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
+        String regEx="<div class=\"tit\">我的积分余额：<span class=\"textb\">([\\d]+)</span>";
+        Pattern pattern = Pattern.compile(regEx);
+        // 忽略大小写的写法
+        Matcher matcher = pattern.matcher(jfPage);
+        String jifen=null;
+        if (matcher.find()){
+            jifen= matcher.group(1);
+        }
+        JfResult result=new JfResult();
+        result.setPoints(jifen);
         return result;
     }
 
-    private void get_user_info(Map<String, String> cookie) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://wan.360.cn/getuserinfo.html").openConnection();
-        connection.setRequestProperty("User-Agent",Constants.DEFAULT_UA);
-        Common.updateCookie(connection,cookie);
+    private String getToken(String userName) throws IOException {
+        HttpGet httpGet = new HttpGet("https://login.360.cn/?func=jQuery"+System.currentTimeMillis()+"&src=pcw_i360&from=pcw_i360&charset=UTF-8&requestScema=https&o=sso&m=getToken&userName="+userName+"&_="+System.currentTimeMillis());
+        String text = XHttpClient.get(httpGet);
+        return getJsonValue(text,"token");
     }
-
-    private void openJifenPage(Map<String, String> cookie) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://jifen.360.cn/").openConnection();
-        connection.setRequestProperty("User-Agent",Constants.DEFAULT_UA);
-        Common.updateCookie(connection,cookie);
-    }
-
-
-    private String getAppToken(Map<String, String> cookie) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://jifen.360.cn/").openConnection();
-        connection.setRequestProperty("User-Agent",Constants.DEFAULT_UA);
-        connection.setRequestProperty("Referer","http://jifen.360.cn/");
-        connection.setRequestProperty("Cookie",Common.buildCookieString(cookie));
-        Common.updateCookie(connection,cookie);
-
-        //String page = new String(GZipUtils.decompress(GZipUtils.input2byte(connection.getInputStream())));
-        String page = Common.inputStreamToString(connection.getInputStream());
-        Document document = Jsoup.parse(page);
-        Elements elements = document.getElementsByTag("script");
-        String el = elements.get(0).toString();
-        String text=el.substring(el.indexOf('{'),el.lastIndexOf('}')+1);
-        JSONObject object = JSONObject.parseObject(text);
-        return object.getString("token");
-    }
-
-
-    private String getJf(String url,Map<String,String> cookie) throws Exception{
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("User-Agent",Constants.DEFAULT_UA);
-        connection.setRequestProperty("Accept","application/json, text/javascript, */*; q=0.01");
-        connection.setRequestProperty("Referer","http://jifen.360.cn/");
-        connection.setRequestProperty("Content-Length","0");
-        connection.setRequestProperty("Cookie",Common.buildCookieString(cookie));
-
-        OutputStream os = connection.getOutputStream();
-        os.write("".getBytes());
-        os.close();
-
-
-        Common.updateCookie(connection,cookie);
-
-        String text=new String(GZipUtils.decompress(GZipUtils.input2byte(connection.getInputStream())));
-        JSONObject object = JSONObject.parseObject(text);
-        if (object.getIntValue("errno")==0){
-            JSONObject dataObj = object.getJSONObject("data");
-            if (dataObj.getBooleanValue("ifsignin")){
-                int active_days=dataObj.getIntValue("active_days");
-                int score=dataObj.getIntValue("score");
-                return (active_days*score)+"";
-            }
+    public static String getJsonValue(String text,String key){
+        String regEx="\""+key+"\":\"([^\"]*)\"";
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()){
+            return matcher.group(1);
         }
-        return null;
+        return "";
     }
 
-
-    private String getToken(Map<String,String> cookie,String account) throws Exception{
-        String url="https://login.360.cn/?func=jQuery11130021198072886692287_1484555554733&src=pcw_wan&from=pcw_wan&charset=UTF-8&requestScema=https&o=sso&m=getToken"
-                +"&userName="+account+"&_="+System.currentTimeMillis();
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setSSLSocketFactory(sslContext.getSocketFactory());
-        connection.setHostnameVerifier(mhv);
-        connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-        connection.setRequestProperty("Cookie",Common.buildCookieString(cookie));
-        String text= Common.inputStreamToString(connection.getInputStream());
-        String textjson=text.substring(text.indexOf('{'),text.lastIndexOf('}')+1);
-        JSONObject object = JSONObject.parseObject(textjson);
-        return object.getString("token");
-    }
-
-    private void login(Map<String,String> cookie,String accout,String password,String token) throws Exception{
-        String param = buildLoginParam(accout,password,token);
-        byte[] data = param.getBytes();
-        int len = data.length;
-        String url = "https://login.360.cn/";
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setSSLSocketFactory(sslContext.getSocketFactory());
-        connection.setHostnameVerifier(mhv);
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setRequestProperty("User-Agent",Constants.DEFAULT_UA);
-        connection.setRequestProperty("Cookie",Common.buildCookieString(cookie));
-        connection.setRequestProperty("Content-Length",len+"");
-        connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-        OutputStream os = connection.getOutputStream();
-        os.write(data);
-        os.close();
-        Common.updateCookie(connection,cookie);
-
-        String body = Common.inputStreamToString(connection.getInputStream());
-        System.out.println(body);
-    }
-
-
-    private String buildLoginParam(String user,String password,String token) throws Exception{
-        StringBuilder sb = new StringBuilder();
-        sb.append("src=pcw_wan&from=pcw_wan&charset=UTF-8&requestScema=https")
-                .append("&o=sso&m=login&lm=0&captFlag=1&rtype=data&validatelm=0&isKeepAlive=0&captchaApp=i360")
-                .append("&userName=").append(user)
-                .append("&type=normal")
-                .append("&account=").append(user)
-                .append("&password=").append(password)
-                .append("&captcha=")
-                .append("&token=").append(token)
-                .append("&proxy=http://wan.360.cn/psp_jump.html").append("&callback=QiUserJsonp81244946&func=QiUserJsonp81244946");
-        return sb.toString();
-    }
-
-
-    public static void main(String[] args){
-        try {
-            Jf360Service service = new Jf360Service();
-            JfRequest request = new JfRequest();
-            request.setAccount("testjifen");
-            request.setPassword("wgy123");
-            service.queryIntegral(request);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+    public static void main(String[] args) throws Exception {
+        Jf360Service jf360Service=new Jf360Service();
+        JfRequest request=new JfRequest();
+        request.setAccount("testjifen");
+        request.setPassword("wgy123");
+//        JfResult result = jf360Service.requestVerifyCode(request);
+//        if(result!=null){
+//            System.out.println(result.getData());
+//            Scanner scanner = new Scanner(System.in);
+//            String captcha = scanner.next();
+//            request.setCode(captcha);
+//        }
+        JfResult jfResult = jf360Service.queryIntegral(request);
+        System.out.println("积分："+jfResult.getPoints()+" 错误信息:"+jfResult.getReason());
     }
 }
