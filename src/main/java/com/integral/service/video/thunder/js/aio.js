@@ -1,5 +1,5 @@
 /**
- * Created by kris on 2017/3/1.
+ * Created by kris on 2017/3/4.
  */
 window.xlQuickLogin = {};
 (function () {
