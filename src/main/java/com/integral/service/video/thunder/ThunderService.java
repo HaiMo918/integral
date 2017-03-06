@@ -48,7 +48,8 @@ public class ThunderService implements IQueryIntegral{
     public JfResult queryIntegral(JfRequest request) throws Exception {
         JfResult result = new JfResult();
         Map<String,String> thunderCookie = new HashMap<>();
-        doReferAccess(thunderCookie);
+        //doReferAccess(thunderCookie);
+        thunderCookie.put("_x_t","0");
         riskReport(thunderCookie);
         String response = doPreLoginThunder(request.getAccount(),thunderCookie);
         if (response.contains("limit")){
@@ -78,7 +79,7 @@ public class ThunderService implements IQueryIntegral{
          */
 //        final String xl_fp_raw = Base64Util.encode(new ThunderConfig().toString());
         final String xl_fp_raw = ThunderConfig.fp_raw;
-        final String xl_fp = CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","toMd5String",xl_fp_raw);
+        final String xl_fp = CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","getMd5",xl_fp_raw);
         final String xl_fp_sign = CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\algorithm.js","xl_al",xl_fp_raw);
         final String param = "xl_fp_raw="+xl_fp_raw+"&xl_fp="+ xl_fp +"&xl_fp_sign="+ xl_fp_sign+"&cachetime="+System.currentTimeMillis();
         final String url = "https://login.xunlei.com/risk?cmd=report";
@@ -94,6 +95,7 @@ public class ThunderService implements IQueryIntegral{
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE,"application/x-www-form-urlencoded");
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_LENGTH,length);
         connection.setRequestProperty(Constants.HttpHeaders.REFERER,refer);
+        connection.setRequestProperty(Constants.HttpHeaders.COOKIE,Common.buildCookieString(cookie));
 
         OutputStream os = connection.getOutputStream();
         os.write(data);
@@ -101,12 +103,11 @@ public class ThunderService implements IQueryIntegral{
         os.close();
 
         Common.updateCookie(connection,cookie);
-        cookie.put("_x_t_","0");
     }
     private String doPreLoginThunder(String user,Map<String,String> cookie) throws Exception{
         final long t1 = System.currentTimeMillis();
         final String deviceid = cookie.get("deviceid").substring(0,32);
-        this.csrf_token=CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","toMd5String",deviceid);
+        this.csrf_token=CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","getMd5",deviceid);
         ThunderPreLoginData thunderPreLoginData = new ThunderPreLoginData();
         thunderPreLoginData.u=user;
         thunderPreLoginData.csrf_token=this.csrf_token;
@@ -114,6 +115,8 @@ public class ThunderService implements IQueryIntegral{
 
         final String url = "https://login.xunlei.com/check/?"+thunderPreLoginData.toString();
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+        connection.setHostnameVerifier(mhv);
+        connection.setSSLSocketFactory(sslContext.getSocketFactory());
         connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT,"image/webp,image/*,*/*;q=0.8");
         connection.setRequestProperty(Constants.HttpHeaders.REFERER,refer);
@@ -184,7 +187,7 @@ public class ThunderService implements IQueryIntegral{
         String jsonText = body.substring(body.indexOf('{'),body.lastIndexOf('}')+1);
         JSONObject obj = JSONObject.parseObject(jsonText);
         JSONObject data = obj.getJSONObject("data");
-        int totalPoints = data.getIntValue("gold")+data.getIntValue("437");
+        int totalPoints = data.getIntValue("gold")+data.getIntValue("silver");
         return String.valueOf(totalPoints);
     }
     public static void main(String[] args){
