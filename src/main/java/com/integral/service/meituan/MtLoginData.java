@@ -15,4 +15,6 @@ public class MtLoginData {
     public String toString() {
         return "email="+email+"&password="+password+"&captcha="+captcha+"&origin="+origin+"&fingerprint="+fingerprint+"&csrf="+csrf;
     }
+
+    public static final String MT_LOGIN_URL = "https://passport.meituan.com/account/unitivelogin?service=www&continue=http%3A%2F%2Fwww.meituan.com%2Faccount%2Fsettoken%3Fcontinue%3Dhttp%253A%252F%252Fbj.meituan.com%252F";
 }

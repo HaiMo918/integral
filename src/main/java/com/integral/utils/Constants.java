@@ -2,6 +2,7 @@ package com.integral.utils;
 
 public interface Constants {
     String DEFAULT_UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0";
+    String BK_UA = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36";
     String AES_KEY = "oi4fVNvyITEHT6qH";
     enum ErrorCode{
         ERROR_SUCCESS(0),
