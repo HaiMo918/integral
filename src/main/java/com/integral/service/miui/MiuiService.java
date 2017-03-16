@@ -29,21 +29,7 @@ public class MiuiService implements IQueryIntegral {
     private MyX509TrustManager xtm = new MyX509TrustManager();
     private MyHostNameVerify mhv = new MyHostNameVerify();
     private SSLContext sslContext = null;
-    private static Map<String,Map<String,String>> muuiCookie;
-    private static boolean debug=true;
-    private static Map<String,Map<String,String>> extraData;
-    private static Map<String,String > referers;
-    private final String agent="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     public MiuiService() throws Exception{
-        if(muuiCookie==null){
-            muuiCookie=new HashMap<>();
-        }
-        if (extraData==null){
-            extraData = new HashMap<>();
-        }
-        if (referers==null){
-            referers = new HashMap<>();
-        }
         sslContext = SSLContext.getInstance("SSL");
         X509TrustManager[] xtmArray = new X509TrustManager[]{xtm};
         sslContext.init(null, xtmArray, new java.security.SecureRandom());
@@ -51,21 +37,7 @@ public class MiuiService implements IQueryIntegral {
 
     @Override
     public JfResult requestVerifyCode(JfRequest request) throws Exception {
-//        JfResult result = new JfResult();
-//        result.setMessage("获取验证码失败");
-//        Map<String,String> cookie = new HashMap<>();
-//        String id = Common.createUUID();
-//        result.setId(id);
-//
-//        String loginPage = "http://www.miui.com/member.php?mod=logging&action=miuilogin";
-//        String redirectUrl = openLoginPage(loginPage,cookie);
-//        referers.put(id,redirectUrl);
-//        Map<String,String> keys = pass_service_login(cookie,redirectUrl);
-//        extraData.put(id,keys);
-//        pass_service_loginauth(cookie,redirectUrl,keys,request.getAccount(),request.getPassword());
-//        String picurl=setPicUrl(cookie,redirectUrl);
-//        result.setData(picurl);
-//        muuiCookie.put(id,cookie);
+
         return null;
     }
 
@@ -75,22 +47,81 @@ public class MiuiService implements IQueryIntegral {
     public JfResult queryIntegral(JfRequest request) throws Exception {
         JfResult result = new JfResult();
         Map<String,String> cookie = new HashMap<>();
-        String loginPage = "http://www.miui.com/member.php?mod=logging&action=miuilogin";
-        String redirectUrl = openLoginPage(loginPage,cookie);
-        cookie.put("uLocale","zh_CN");
-        Map<String,String> keys = pass_service_login(cookie,redirectUrl);
-        MiOkData md = pass_service_loginauth(cookie,redirectUrl,keys,request.getAccount(),request.getPassword());
-        if (md.code!=0){
-            result.setMessage(md.desc);
+        String url = member_php(cookie);
+        if (url == null){
+            result.setMessage("[小米]获取重定向页面失败");
             return result;
         }
 
-        extra_php_page(md.location,cookie);
-
-        String jf = getJf(cookie);
-        result.setPoints(jf);
+        MiuiJspVar var = extractMiuiJspVar(cookie,url);
         return result;
     }
+
+
+    //打开登录页，返回重定向的页面
+    private String member_php(Map<String,String> cookie) throws Exception{
+        final String url = "http://www.miui.com/member.php?mod=logging&action=miuilogin";
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
+
+        Common.updateCookie(connection,cookie);
+        return connection.getHeaderField("Location");
+    }
+
+    private MiuiJspVar extractMiuiJspVar(Map<String,String> cookie,String url) throws Exception{
+        MiuiJspVar var = null;
+        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.COOKIE,Common.buildCookieString(cookie));
+        connection.setSSLSocketFactory(sslContext.getSocketFactory());
+        connection.setHostnameVerifier(mhv);
+
+        String body = Common.inputStreamToString(connection.getInputStream());
+        Pattern pattern = Pattern.compile("var JSP_VAR=.\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*\\n.*};");
+        Matcher matcher = pattern.matcher(body);
+        if (matcher.find()){
+            String text = matcher.group(0);
+            text=text.substring(text.indexOf('{')+1,text.lastIndexOf('}')).trim();
+
+        }
+
+        return var;
+    }
+
+
+    /*
+        var JSP_VAR={
+  deviceType:'PC',
+  dataCenter:'lg',
+  locale:"zh_CN",
+  region:"CN",
+  callback:"http://www.miui.com/extra.php?mod=xiaomi/authcallback&followup=http%3A%2F%2Fwww.miui.com&sign=MjljNjQyMDlkYzVhM2Q2MWIyMTdlOWM1MDRlMGFjNTYzYTE5NzZlNw,,",
+  sid:"miuibbs",
+  qs:"%3Fcallback%3Dhttp%253A%252F%252Fwww.miui.com%252Fextra.php%253Fmod%253Dxiaomi%252Fauthcallback%2526followup%253Dhttp%25253A%25252F%25252Fwww.miui.com%2526sign%253DMjljNjQyMDlkYzVhM2Q2MWIyMTdlOWM1MDRlMGFjNTYzYTE5NzZlNw%252C%252C%26sid%3Dmiuibbs%26_locale%3Dzh_CN",
+  hidden:"",
+  "_sign":"AzkkvsPUGQuKHN3ShdTXaqq/L+U=",
+  serviceParam :'{"checkSafePhone":false}',
+  privacyLink:'http://www.miui.com/res/doc/privacy/cn.html',
+  showActiveXControl:false
+};
+
+<ul class="uinfo_t_box_other">
+                                <li>用户组：玩机小白</li>
+                                <li>积&nbsp;&nbsp;&nbsp;分：21</li>
+                                <li>帖&nbsp;&nbsp;&nbsp;子：0</li>
+                                <li>好&nbsp;&nbsp;&nbsp;友：0</li>
+                            </ul>
+     */
+    private Map<String,String> parseJspVar(String jspVarText) throws Exception{
+        String[] elem = jspVarText.split("\n");
+        String []eachData;
+        Map<String,String> vars = new HashMap<>();
+        for (String data : elem){
+            eachData = data.split(":");
+
+        }
+    }
+
 
     private String getJf(Map<String, String> cookie) throws Exception{
         HttpURLConnection connection = (HttpURLConnection) new URL("http://www.miui.com/index.html").openConnection();
