@@ -39,7 +39,13 @@ public class Common {
                         int firstColon = cookie.indexOf('=');
                         String key = cookie.substring(0, firstColon);
                         String keyvalue = cookie.substring(firstColon + 1);
-                        thecookie.put(key, keyvalue);
+                        if (thecookie.containsKey(key)) {
+                            if ("".equals(thecookie.get(key))) {
+                                thecookie.put(key, keyvalue);
+                            }
+                        }else{
+                            thecookie.put(key, keyvalue);
+                        }
                     }
                 }
             }
@@ -57,5 +63,4 @@ public class Common {
         }
         return data.toString();
     }
-
 }

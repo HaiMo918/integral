@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.integral.tools.Base64Util;
 import com.integral.tools.MD5;
 import com.integral.utils.*;
+import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -22,6 +23,7 @@ import java.util.Map;
 /**
  * Created by kris on 2017/3/1.
  */
+@Service
 public class ThunderService implements IQueryIntegral{
     private ScriptEngineManager engineManager;
     private ScriptEngine engine;
@@ -48,7 +50,6 @@ public class ThunderService implements IQueryIntegral{
     public JfResult queryIntegral(JfRequest request) throws Exception {
         JfResult result = new JfResult();
         Map<String,String> thunderCookie = new HashMap<>();
-        //doReferAccess(thunderCookie);
         thunderCookie.put("_x_t","0");
         riskReport(thunderCookie);
         String response = doPreLoginThunder(request.getAccount(),thunderCookie);
@@ -77,10 +78,9 @@ public class ThunderService implements IQueryIntegral{
          * xl_fp的计算方式 md5(fp_raw)
          * xl_fp_sign 计算方式：xl_al(fp_raw)
          */
-//        final String xl_fp_raw = Base64Util.encode(new ThunderConfig().toString());
         final String xl_fp_raw = ThunderConfig.fp_raw;
-        final String xl_fp = CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","getMd5",xl_fp_raw);
-        final String xl_fp_sign = CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\algorithm.js","xl_al",xl_fp_raw);
+        final String xl_fp = CallJSMethod(Constants.JS_FOLDER+"thundermd5.js","getMd5",xl_fp_raw);
+        final String xl_fp_sign = CallJSMethod(Constants.JS_FOLDER+"algorithm.js","xl_al",xl_fp_raw);
         final String param = "xl_fp_raw="+xl_fp_raw+"&xl_fp="+ xl_fp +"&xl_fp_sign="+ xl_fp_sign+"&cachetime="+System.currentTimeMillis();
         final String url = "https://login.xunlei.com/risk?cmd=report";
         byte[] data = param.getBytes();
@@ -107,7 +107,7 @@ public class ThunderService implements IQueryIntegral{
     private String doPreLoginThunder(String user,Map<String,String> cookie) throws Exception{
         final long t1 = System.currentTimeMillis();
         final String deviceid = cookie.get("deviceid").substring(0,32);
-        this.csrf_token=CallJSMethod("D:\\projects\\integral\\src\\main\\java\\com\\integral\\service\\video\\thunder\\js\\thundermd5.js","getMd5",deviceid);
+        this.csrf_token=CallJSMethod(Constants.JS_FOLDER+"thundermd5.js","getMd5",deviceid);
         ThunderPreLoginData thunderPreLoginData = new ThunderPreLoginData();
         thunderPreLoginData.u=user;
         thunderPreLoginData.csrf_token=this.csrf_token;
@@ -126,13 +126,6 @@ public class ThunderService implements IQueryIntegral{
         return Common.inputStreamToString(connection.getInputStream());
     }
 
-    private void doReferAccess(Map<String,String> cookie) throws Exception
-    {
-        HttpURLConnection connection = (HttpURLConnection) new URL(refer).openConnection();
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
-        connection.setRequestProperty(Constants.HttpHeaders.ACCEPT,"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-        Common.updateCookie(connection,cookie);
-    }
 
     private String CallJSMethod(String js,String method,String param) throws Exception
     {
@@ -190,16 +183,16 @@ public class ThunderService implements IQueryIntegral{
         int totalPoints = data.getIntValue("gold")+data.getIntValue("silver");
         return String.valueOf(totalPoints);
     }
-    public static void main(String[] args){
-        try{
-            JfRequest request = new JfRequest();
-            request.setAccount("515091847@qq.com");
-            request.setPassword("lqh_1985t");
-            ThunderService service = new ThunderService();
-            JfResult result = service.queryIntegral(request);
-            System.out.println(result.getPoints());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args){
+//        try{
+//            JfRequest request = new JfRequest();
+//            request.setAccount("515091847@qq.com");
+//            request.setPassword("lqh_1985t");
+//            ThunderService service = new ThunderService();
+//            JfResult result = service.queryIntegral(request);
+//            System.out.println(result.getPoints());
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 }
