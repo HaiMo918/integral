@@ -15,10 +15,7 @@ import javax.net.ssl.X509TrustManager;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,12 +30,15 @@ public class MeituanService implements IQueryIntegral {
     private MyX509TrustManager xtm = new MyX509TrustManager();
     private MyHostNameVerify mhv = new MyHostNameVerify();
     private SSLContext sslContext = null;
-
+    private String mMtAgent;
 
     MeituanService() throws Exception{
         sslContext = SSLContext.getInstance("SSL");
         X509TrustManager[] xtmArray = new X509TrustManager[]{xtm};
         sslContext.init(null, xtmArray, new java.security.SecureRandom());
+        Random r = new Random();
+        int i = r.nextInt(5);
+        mMtAgent = MtLoginData.MT_AGENT.get(i);
     }
 
     @Override
@@ -61,8 +61,13 @@ public class MeituanService implements IQueryIntegral {
         }
 
         //获取验证码
-        String picLink = requestVerifyCode(mtCookie);
-        result.setData(picLink);
+//        String picLink = requestVerifyCode(mtCookie);
+//        result.setData(picLink);
+        boolean isSendSms = requestMobileCode(mtCookie,request.getAccount());
+        if (!isSendSms){
+            result.setMessage("[美团]发送短信验证码失败");
+            return result;
+        }
         result.setMessage("[美团]已经获取到验证码");
         mtCookie.put("csrf", csrf);
         theCookie.put(request.getAccount(), mtCookie);
@@ -75,10 +80,10 @@ public class MeituanService implements IQueryIntegral {
         Map<String, String> mtCookie = theCookie.get(request.getAccount());
 
         MtLoginData data = new MtLoginData();
-        data.captcha = request.getCode();
-        //data.captcha="";
-        data.email = request.getAccount();
-        data.password = request.getPassword();
+        //data.captcha = request.getCode();
+        data.captcha="";
+        data.mobile = request.getAccount();
+        data.code = request.getCode();
         data.csrf = mtCookie.get("csrf");
 
         //开始登录
@@ -116,7 +121,7 @@ public class MeituanService implements IQueryIntegral {
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
         connection.setSSLSocketFactory(sslContext.getSocketFactory());
         connection.setHostnameVerifier(mhv);
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, Constants.BK_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT_ENCODING,"gzip, deflate, sdch, br");
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT_LANGUAGE,"zh-CN,zh;q=0.8");
@@ -147,7 +152,7 @@ public class MeituanService implements IQueryIntegral {
     private String requestVerifyCode(Map<String, String> cookie) throws Exception {
         final String url = "https://passport.meituan.com/account/captcha";
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, Constants.BK_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT, "image/webp,image/*,*/*;q=0.8");
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE, Common.buildCookieString(cookie));
 
@@ -180,6 +185,34 @@ public class MeituanService implements IQueryIntegral {
         return picPath;
     }
 
+    private boolean requestMobileCode(Map<String,String> cookie,String mobile) throws Exception{
+        final String url = "https://passport.meituan.com/account/mobilelogincode";
+        final String param = "mobile="+mobile;
+        byte[] data = param.getBytes();
+        String len = String.valueOf(data.length);
+
+        HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+        connection.setHostnameVerifier(mhv);
+        connection.setSSLSocketFactory(sslContext.getSocketFactory());
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
+        connection.setRequestProperty(Constants.HttpHeaders.COOKIE, Common.buildCookieString(cookie));
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8");
+        connection.setRequestProperty(Constants.HttpHeaders.CONTENT_LENGTH, len);
+        connection.setRequestProperty(Constants.HttpHeaders.REFERER,this.mLoginURLs.get(mobile));
+        connection.setRequestProperty("X-Client", "javascript");
+        connection.setRequestProperty("X-CSRF-Token", cookie.get("csrf"));
+
+        OutputStream os = connection.getOutputStream();
+        os.write(data);
+        os.flush();
+
+        String body = Common.inputStreamToString(connection.getInputStream());
+        JSONObject obj = JSONObject.parseObject(body);
+        return obj.getJSONObject("data").getIntValue("success") == 0;
+    }
+
     private JSONObject doLoginMt(Map<String, String> cookie, MtLoginData loginData) throws Exception {
         JSONObject dataObj = new JSONObject();
         String param = loginData.toString();
@@ -188,13 +221,13 @@ public class MeituanService implements IQueryIntegral {
         HttpsURLConnection connection = (HttpsURLConnection) new URL(MtLoginData.MT_LOGIN_URL).openConnection();
         connection.setHostnameVerifier(mhv);
         connection.setSSLSocketFactory(sslContext.getSocketFactory());
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, Constants.BK_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE, Common.buildCookieString(cookie));
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; charset=UTF-8");
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_LENGTH, len);
-        connection.setRequestProperty(Constants.HttpHeaders.REFERER,this.mLoginURLs.get(loginData.email));
+        connection.setRequestProperty(Constants.HttpHeaders.REFERER,this.mLoginURLs.get(loginData.mobile));
         connection.setRequestProperty("X-Client", "javascript");
         connection.setRequestProperty("X-CSRF-Token", cookie.get("csrf"));
 
@@ -242,7 +275,7 @@ public class MeituanService implements IQueryIntegral {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, Constants.BK_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE, Common.buildCookieString(cookie));
         connection.setInstanceFollowRedirects(false);
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
@@ -259,7 +292,7 @@ public class MeituanService implements IQueryIntegral {
 
     private String openHomePageAndGetPoints(String url, Map<String, String> cookie) throws Exception {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, Constants.BK_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT, this.mMtAgent);
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE, Common.buildCookieString(cookie));
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
 
@@ -300,17 +333,17 @@ public class MeituanService implements IQueryIntegral {
         MeituanService service = new MeituanService();
         JfResult result;
         JfRequest request = new JfRequest();
-        request.setAccount("18621793235");
-        //request.setAccount("15202823217");
+        //request.setAccount("18621793235");
+        request.setAccount("15202823217");
         result = service.requestVerifyCode(request);
-        System.out.println(result.getData());
-        request.setPassword("liu123");
+        //System.out.println(result.getData());
+        //request.setPassword("liu123");
         //request.setPassword("lqh1985");
         System.out.println("input code:");
         Scanner scanner = new Scanner(System.in);
         String code = scanner.nextLine();
         request.setCode(code);
-        request.setId(result.getId());
+        //request.setId(result.getId());
         result = service.queryIntegral(request);
         System.out.println(result.getPoints());
     }

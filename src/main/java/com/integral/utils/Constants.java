@@ -45,4 +45,5 @@ public interface Constants {
     PlatForm platform=PlatForm.WINDOWS;
 
     String JS_FOLDER = "/usr/local/etc/tomcat8/webapps/jquery/";
+    String REQUEST_METHOD_POST = "POST";
 }
