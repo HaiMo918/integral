@@ -16,4 +16,5 @@ public class MiuiJspVar {
     public String serviceParam;
     public String privacyLink;
     public boolean showActiveXControl;
+    public String login_cn_html;
 }
