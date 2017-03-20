@@ -19,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,16 +31,44 @@ public class MiuiService implements IQueryIntegral {
     private MyX509TrustManager xtm = new MyX509TrustManager();
     private MyHostNameVerify mhv = new MyHostNameVerify();
     private SSLContext sslContext = null;
+    private static Map<String,Map<String,String>> mMiCookie;
     public MiuiService() throws Exception{
         sslContext = SSLContext.getInstance("SSL");
         X509TrustManager[] xtmArray = new X509TrustManager[]{xtm};
         sslContext.init(null, xtmArray, new java.security.SecureRandom());
+        mMiCookie = new HashMap<>();
     }
 
     @Override
     public JfResult requestVerifyCode(JfRequest request) throws Exception {
+        Map<String,String> cookie = new HashMap<>();
+        final String url = "https://account.xiaomi.com/pass/getCode?icodeType=login";
+        HttpsURLConnection connection= (HttpsURLConnection) new URL(url).openConnection();
+        connection.setHostnameVerifier(mhv);
+        connection.setSSLSocketFactory(sslContext.getSocketFactory());
+        connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
+        connection.setRequestProperty(Constants.HttpHeaders.ACCEPT,"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        Common.updateCookie(connection,cookie);
+        mMiCookie.put(request.getAccount(),cookie);
+        final long t = System.currentTimeMillis();
+        final String remoteurl = "/usr/local/etc/tomcat8/webapps/images/"+t+".jpeg";
+        //final String remoteurl = "d:/"+t+".jpeg";
+        final String data = "http://114.55.133.156:8080/images/"+t+".jpeg";
+        byte[] buffer = new byte[1024];
 
-        return null;
+        FileOutputStream fos = new FileOutputStream(remoteurl);
+        int count = -1;
+        InputStream is = connection.getInputStream();
+
+        while((count=is.read(buffer))!=-1){
+            fos.write(buffer,0,count);
+        }
+        fos.close();
+        is.close();
+
+        JfResult result = new JfResult();
+        result.setData(data);
+        return result;
     }
 
 
@@ -47,7 +76,7 @@ public class MiuiService implements IQueryIntegral {
     @Override
     public JfResult queryIntegral(JfRequest request) throws Exception {
         JfResult result = new JfResult();
-        Map<String,String> cookie = new HashMap<>();
+        Map<String,String> cookie = mMiCookie.get(request.getAccount());
         String url = member_php(cookie);
         if (url == null){
             result.setMessage("[小米]获取重定向页面失败");
@@ -69,7 +98,10 @@ public class MiuiService implements IQueryIntegral {
         final String qs = URLEncoder.encode(var.qs,"UTF-8");
         final String sign = URLEncoder.encode(var._sign,"UTF-8");
         final String sParam = URLEncoder.encode(var.serviceParam,"UTF-8");
-        final String loginParam = "_json=true"+"&callback="+callback +"&sid="+sid +"&qs="+qs+"&_sign="+sign +"&serviceParam="+sParam +"&user="+request.getAccount() +"&hash="+new MD5().bytesToMD5(request.getPassword().getBytes()).toUpperCase();
+        final String loginParam = "_json=true"+"&callback="+callback +"&sid="
+                +sid +"&qs="+qs+"&_sign="+sign +"&serviceParam="+sParam +"&user="
+                +request.getAccount() +"&hash="+new MD5().bytesToMD5(request.getPassword().getBytes()).toUpperCase()
+                +"&captCode="+request.getCode();
         MiuiLoginResponse response = doMiuiLogin(cookie,loginURL,loginParam);
         if (response.code!=0){
             result.setMessage("[小米]"+response.desc);
@@ -216,20 +248,25 @@ public class MiuiService implements IQueryIntegral {
         }
         return var;
     }
-//
-//    public static void main(String[] args){
-//        try{
-//            JfRequest request = new JfRequest();
-//            request.setAccount("13366183868");
-//            request.setPassword("666xiaomi");
-//
-//
-//            MiuiService service = new MiuiService();
-//            JfResult result = service.queryIntegral(request);
-//            System.out.println(result.getPoints());
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//    }
+
+    public static void main(String[] args){
+        try{
+            JfRequest request = new JfRequest();
+            request.setAccount("13366183868");
+            request.setPassword("666xiaomi");
+
+
+            MiuiService service = new MiuiService();
+
+            JfResult result = service.requestVerifyCode(null);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("请输入验证码：");
+            request.setCode(scanner.nextLine());
+            result = service.queryIntegral(request);
+            System.out.println(result.getPoints());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
 }

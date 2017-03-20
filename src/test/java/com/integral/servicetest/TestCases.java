@@ -226,11 +226,21 @@ public class TestCases {
     @Test
     public void testMIUIjifen() throws Exception{
         JfRequest request = new JfRequest();
-        request.setAccount("13366183868");
-        request.setPassword("666xiaomi");
+        request.setAccount("18864835696");
+        request.setPassword("admin123");
+        request.setCode("55r5k");
         NameValuePair valuePair = new BasicNameValuePair("data",Decrypter.getInstance().encrypt(request));
         String result = Request.Post(BASE_URL+"/query_miui_jf").bodyForm(valuePair).execute().returnContent().asString();
         JSONObject object = JSONObject.parseObject(result);
         System.out.println(object.toJSONString());
+    }
+
+    @Test
+    public void testGetMiuiPic() throws Exception{
+        JfRequest request = new JfRequest();
+        request.setAccount("18864835696");
+        NameValuePair valuePair = new BasicNameValuePair("data",Decrypter.getInstance().encrypt(request));
+        String result = Request.Post(BASE_URL+"/request_miui_pic").bodyForm(valuePair).execute().returnContent().asString();
+        System.out.println(result);
     }
 }

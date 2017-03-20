@@ -30,4 +30,16 @@ public class MiuiController {
         }
         return result;
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/request_miui_pic",method = RequestMethod.POST)
+    public JfResult queryPic(@RequestParam("data")String data){
+        JfResult result = new JfResult();
+        try{
+            result=miuiService.requestVerifyCode(Decrypter.getInstance().decrypt(data));
+        }catch (Exception e){
+            result.setMessage(e.getMessage());
+        }
+        return result;
+    }
 }
