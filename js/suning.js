@@ -1,3 +1,6 @@
+var Hex;
+var Base64_RSA;
+var ASN1;
 var JSEncryptExports = {};
 (function (ap) {
     var bE;
@@ -57,18 +60,18 @@ var JSEncryptExports = {};
         return b0
     }
 
-    if (aV && (navigator.appName == "Microsoft Internet Explorer")) {
-        bf.prototype.am = a6;
-        bE = 30
-    } else {
-        if (aV && (navigator.appName != "Netscape")) {
-            bf.prototype.am = a7;
-            bE = 26
-        } else {
-            bf.prototype.am = a5;
-            bE = 28
-        }
-    }
+    // if (aV && (navigator.appName == "Microsoft Internet Explorer")) {
+    //     bf.prototype.am = a6;
+    //     bE = 30
+    // } else {
+    //     if (aV && (navigator.appName != "Netscape")) {
+    bf.prototype.am = a7;
+    bE = 26
+    //     } else {
+    //         bf.prototype.am = a5;
+    //         bE = 28
+    //     }
+    // }
     bf.prototype.DB = bE;
     bf.prototype.DM = ((1 << bE) - 1);
     bf.prototype.DV = (1 << bE);
@@ -1648,7 +1651,7 @@ var JSEncryptExports = {};
         var a8 = new Uint32Array(256);
         var index_;
         for (ba = 0; ba < a8.length; ++ba) {
-            index_ = Math.round(Math.random()*256);
+            index_ = Math.round(Math.random() * 256);
             l[C++] = index_ & 255
         }
         //}
@@ -1676,6 +1679,7 @@ var JSEncryptExports = {};
         //     }
         // }
     }
+
     function bb() {
         if (j == null) {
             j = P();
@@ -2159,13 +2163,15 @@ var JSEncryptExports = {};
     var at = at || {};
     at.env = at.env || {};
     var bn = at, aw = Object.prototype, ar = "[object Function]", X = ["toString", "valueOf"];
-    at.env.parseUA = function (bW) {
+     at.env.parseUA = function (bW) {
         var bX = function (b1) {
             var b2 = 0;
             return parseFloat(b1.replace(/\./g, function () {
                 return (b2++ == 1) ? "" : "."
             }))
-        }, b0 = navigator, bZ = {
+        },
+    //         //b0 = navigator,
+            bZ = {
             ie: 0,
             opera: 0,
             gecko: 0,
@@ -2179,102 +2185,103 @@ var JSEncryptExports = {};
             ios: null,
             android: 0,
             webos: 0,
-            caja: b0 && b0.cajaVersion,
+            caja: 0 ,
             secure: false,
             os: null
-        }, L = bW || (navigator && navigator.userAgent), bY = window && window.location, z = bY && bY.href, t;
-        bZ.secure = z && (z.toLowerCase().indexOf("https") === 0);
-        if (L) {
-            if ((/windows|win32/i).test(L)) {
-                bZ.os = "windows"
-            } else {
-                if ((/macintosh/i).test(L)) {
-                    bZ.os = "macintosh"
-                } else {
-                    if ((/rhino/i).test(L)) {
-                        bZ.os = "rhino"
-                    }
-                }
-            }
-            if ((/KHTML/).test(L)) {
-                bZ.webkit = 1
-            }
-            t = L.match(/AppleWebKit\/([^\s]*)/);
-            if (t && t[1]) {
-                bZ.webkit = bX(t[1]);
-                if (/ Mobile\//.test(L)) {
-                    bZ.mobile = "Apple";
-                    t = L.match(/OS ([^\s]*)/);
-                    if (t && t[1]) {
-                        t = bX(t[1].replace("_", "."))
-                    }
-                    bZ.ios = t;
-                    bZ.ipad = bZ.ipod = bZ.iphone = 0;
-                    t = L.match(/iPad|iPod|iPhone/);
-                    if (t && t[0]) {
-                        bZ[t[0].toLowerCase()] = bZ.ios
-                    }
-                } else {
-                    t = L.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/);
-                    if (t) {
-                        bZ.mobile = t[0]
-                    }
-                    if (/webOS/.test(L)) {
-                        bZ.mobile = "WebOS";
-                        t = L.match(/webOS\/([^\s]*);/);
-                        if (t && t[1]) {
-                            bZ.webos = bX(t[1])
-                        }
-                    }
-                    if (/ Android/.test(L)) {
-                        bZ.mobile = "Android";
-                        t = L.match(/Android ([^\s]*);/);
-                        if (t && t[1]) {
-                            bZ.android = bX(t[1])
-                        }
-                    }
-                }
-                t = L.match(/Chrome\/([^\s]*)/);
-                if (t && t[1]) {
-                    bZ.chrome = bX(t[1])
-                } else {
-                    t = L.match(/AdobeAIR\/([^\s]*)/);
-                    if (t) {
-                        bZ.air = t[0]
-                    }
-                }
-            }
-            if (!bZ.webkit) {
-                t = L.match(/Opera[\s\/]([^\s]*)/);
-                if (t && t[1]) {
-                    bZ.opera = bX(t[1]);
-                    t = L.match(/Version\/([^\s]*)/);
-                    if (t && t[1]) {
-                        bZ.opera = bX(t[1])
-                    }
-                    t = L.match(/Opera Mini[^;]*/);
-                    if (t) {
-                        bZ.mobile = t[0]
-                    }
-                } else {
-                    t = L.match(/MSIE\s([^;]*)/);
-                    if (t && t[1]) {
-                        bZ.ie = bX(t[1])
-                    } else {
-                        t = L.match(/Gecko\/([^\s]*)/);
-                        if (t) {
-                            bZ.gecko = 1;
-                            t = L.match(/rv:([^\s\)]*)/);
-                            if (t && t[1]) {
-                                bZ.gecko = bX(t[1])
-                            }
-                        }
-                    }
-                }
-            }
         }
-        return bZ
-    };
+    //         //L = bW /*, bY = window && window.location, z = bY && bY.href, t*/;
+    //     //bZ.secure = z && (z.toLowerCase().indexOf("https") === 0);
+    //     if (L) {
+    //         if ((/windows|win32/i).test(L)) {
+    //             bZ.os = "windows"
+    //         } else {
+    //             if ((/macintosh/i).test(L)) {
+    //                 bZ.os = "macintosh"
+    //             } else {
+    //                 if ((/rhino/i).test(L)) {
+    //                     bZ.os = "rhino"
+    //                 }
+    //             }
+    //         }
+    //         if ((/KHTML/).test(L)) {
+    //             bZ.webkit = 1
+    //         }
+    //         t = L.match(/AppleWebKit\/([^\s]*)/);
+    //         if (t && t[1]) {
+    //             bZ.webkit = bX(t[1]);
+    //             if (/ Mobile\//.test(L)) {
+    //                 bZ.mobile = "Apple";
+    //                 t = L.match(/OS ([^\s]*)/);
+    //                 if (t && t[1]) {
+    //                     t = bX(t[1].replace("_", "."))
+    //                 }
+    //                 bZ.ios = t;
+    //                 bZ.ipad = bZ.ipod = bZ.iphone = 0;
+    //                 t = L.match(/iPad|iPod|iPhone/);
+    //                 if (t && t[0]) {
+    //                     bZ[t[0].toLowerCase()] = bZ.ios
+    //                 }
+    //             } else {
+    //                 t = L.match(/NokiaN[^\/]*|Android \d\.\d|webOS\/\d\.\d/);
+    //                 if (t) {
+    //                     bZ.mobile = t[0]
+    //                 }
+    //                 if (/webOS/.test(L)) {
+    //                     bZ.mobile = "WebOS";
+    //                     t = L.match(/webOS\/([^\s]*);/);
+    //                     if (t && t[1]) {
+    //                         bZ.webos = bX(t[1])
+    //                     }
+    //                 }
+    //                 if (/ Android/.test(L)) {
+    //                     bZ.mobile = "Android";
+    //                     t = L.match(/Android ([^\s]*);/);
+    //                     if (t && t[1]) {
+    //                         bZ.android = bX(t[1])
+    //                     }
+    //                 }
+    //             }
+    //             t = L.match(/Chrome\/([^\s]*)/);
+    //             if (t && t[1]) {
+    //                 bZ.chrome = bX(t[1])
+    //             } else {
+    //                 t = L.match(/AdobeAIR\/([^\s]*)/);
+    //                 if (t) {
+    //                     bZ.air = t[0]
+    //                 }
+    //             }
+    //         }
+    //         if (!bZ.webkit) {
+    //             t = L.match(/Opera[\s\/]([^\s]*)/);
+    //             if (t && t[1]) {
+    //                 bZ.opera = bX(t[1]);
+    //                 t = L.match(/Version\/([^\s]*)/);
+    //                 if (t && t[1]) {
+    //                     bZ.opera = bX(t[1])
+    //                 }
+    //                 t = L.match(/Opera Mini[^;]*/);
+    //                 if (t) {
+    //                     bZ.mobile = t[0]
+    //                 }
+    //             } else {
+    //                 t = L.match(/MSIE\s([^;]*)/);
+    //                 if (t && t[1]) {
+    //                     bZ.ie = bX(t[1])
+    //                 } else {
+    //                     t = L.match(/Gecko\/([^\s]*)/);
+    //                     if (t) {
+    //                         bZ.gecko = 1;
+    //                         t = L.match(/rv:([^\s\)]*)/);
+    //                         if (t && t[1]) {
+    //                             bZ.gecko = bX(t[1])
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+         return bZ
+     };
     at.env.ua = at.env.parseUA();
     at.isFunction = function (t) {
         return (typeof t === "function") || aw.toString.apply(t) === ar
@@ -2859,6 +2866,8 @@ var JSEncryptExports = {};
         }
     };
     at.extend(KJUR.asn1.DERTaggedObject, KJUR.asn1.ASN1Object);
+
+
     (function (z) {
         var t = {}, L;
         t.decode = function (bW) {
@@ -2904,8 +2913,10 @@ var JSEncryptExports = {};
             }
             return bX
         };
-        window.Hex = t
+        Hex = t
     })();
+
+
     (function (z) {
         var t = {}, L;
         t.decode = function (bW) {
@@ -2974,18 +2985,20 @@ var JSEncryptExports = {};
             }
             return t.decode(bX)
         };
-        window.Base64_RSA = t
+        Base64_RSA = t
     })();
+
+
     (function (bY) {
-        var z = 100, t = "\u2026", L = {
-            tag: function (b0, b1) {
-                var bZ = document.createElement(b0);
-                bZ.className = b1;
-                return bZ
-            }, text: function (bZ) {
-                return document.createTextNode(bZ)
-            }
-        };
+        // var z = 100, t = "\u2026", L = {
+        //     // tag: function (b0, b1) {
+        //     //     var bZ = document.createElement(b0);
+        //     //     bZ.className = b1;
+        //     //     return bZ
+        //     // }, text: function (bZ) {
+        //     //     return document.createTextNode(bZ)
+        //     // }
+        // };
 
         function bX(bZ, b0) {
             if (bZ instanceof bX) {
@@ -3155,6 +3168,7 @@ var JSEncryptExports = {};
             }
             return b3
         };
+
         function bW(b2, b3, b1, bZ, b0) {
             this.stream = b2;
             this.header = b3;
@@ -3324,68 +3338,68 @@ var JSEncryptExports = {};
             }
             return b2
         };
-        bW.prototype.toDOM = function () {
-            var b0 = L.tag("div", "node");
-            b0.asn1 = this;
-            var b6 = L.tag("div", "head");
-            var b8 = this.typeName().replace(/_/g, " ");
-            b6.innerHTML = b8;
-            var b4 = this.content();
-            if (b4 !== null) {
-                b4 = String(b4).replace(/</g, "&lt;");
-                var b3 = L.tag("span", "preview");
-                b3.appendChild(L.text(b4));
-                b6.appendChild(b3)
-            }
-            b0.appendChild(b6);
-            this.node = b0;
-            this.head = b6;
-            var b7 = L.tag("div", "value");
-            b8 = "Offset: " + this.stream.pos + "<br/>";
-            b8 += "Length: " + this.header + "+";
-            if (this.length >= 0) {
-                b8 += this.length
-            } else {
-                b8 += (-this.length) + " (undefined)"
-            }
-            if (this.tag & 32) {
-                b8 += "<br/>(constructed)"
-            } else {
-                if (((this.tag == 3) || (this.tag == 4)) && (this.sub !== null)) {
-                    b8 += "<br/>(encapsulates)"
-                }
-            }
-            if (b4 !== null) {
-                b8 += "<br/>Value:<br/><b>" + b4 + "</b>";
-                if ((typeof oids === "object") && (this.tag == 6)) {
-                    var b1 = oids[b4];
-                    if (b1) {
-                        if (b1.d) {
-                            b8 += "<br/>" + b1.d
-                        }
-                        if (b1.c) {
-                            b8 += "<br/>" + b1.c
-                        }
-                        if (b1.w) {
-                            b8 += "<br/>(warning!)"
-                        }
-                    }
-                }
-            }
-            b7.innerHTML = b8;
-            b0.appendChild(b7);
-            var bZ = L.tag("div", "sub");
-            if (this.sub !== null) {
-                for (var b2 = 0, b5 = this.sub.length; b2 < b5; ++b2) {
-                    bZ.appendChild(this.sub[b2].toDOM())
-                }
-            }
-            b0.appendChild(bZ);
-            b6.onclick = function () {
-                b0.className = (b0.className == "node collapsed") ? "node" : "node collapsed"
-            };
-            return b0
-        };
+         // bW.prototype.toDOM = function () {
+         //    var b0 = L.tag("div", "node");
+        //     b0.asn1 = this;
+        //     var b6 = L.tag("div", "head");
+        //     var b8 = this.typeName().replace(/_/g, " ");
+        //     b6.innerHTML = b8;
+        //     var b4 = this.content();
+        //     if (b4 !== null) {
+        //         b4 = String(b4).replace(/</g, "&lt;");
+        //         var b3 = L.tag("span", "preview");
+        //         b3.appendChild(L.text(b4));
+        //         b6.appendChild(b3)
+        //     }
+        //     b0.appendChild(b6);
+        //     this.node = b0;
+        //     this.head = b6;
+        //     var b7 = L.tag("div", "value");
+        //     b8 = "Offset: " + this.stream.pos + "<br/>";
+        //     b8 += "Length: " + this.header + "+";
+        //     if (this.length >= 0) {
+        //         b8 += this.length
+        //     } else {
+        //         b8 += (-this.length) + " (undefined)"
+        //     }
+        //     if (this.tag & 32) {
+        //         b8 += "<br/>(constructed)"
+        //     } else {
+        //         if (((this.tag == 3) || (this.tag == 4)) && (this.sub !== null)) {
+        //             b8 += "<br/>(encapsulates)"
+        //         }
+        //     }
+        //     if (b4 !== null) {
+        //         b8 += "<br/>Value:<br/><b>" + b4 + "</b>";
+        //         if ((typeof oids === "object") && (this.tag == 6)) {
+        //             var b1 = oids[b4];
+        //             if (b1) {
+        //                 if (b1.d) {
+        //                     b8 += "<br/>" + b1.d
+        //                 }
+        //                 if (b1.c) {
+        //                     b8 += "<br/>" + b1.c
+        //                 }
+        //                 if (b1.w) {
+        //                     b8 += "<br/>(warning!)"
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     b7.innerHTML = b8;
+        //     b0.appendChild(b7);
+        //     var bZ = L.tag("div", "sub");
+        //     if (this.sub !== null) {
+        //         for (var b2 = 0, b5 = this.sub.length; b2 < b5; ++b2) {
+        //             bZ.appendChild(this.sub[b2].toDOM())
+        //         }
+        //     }
+        //     b0.appendChild(bZ);
+        //     b6.onclick = function () {
+        //         b0.className = (b0.className == "node collapsed") ? "node" : "node collapsed"
+        //     };
+        //     return b0
+        // };
         bW.prototype.posStart = function () {
             return this.stream.pos
         };
@@ -3554,8 +3568,9 @@ var JSEncryptExports = {};
                 }
             }
         };
-        window.ASN1 = bW
+        ASN1 = bW
     })();
+
     ASN1.prototype.getHexStringValue = function () {
         var t = this.toHexString();
         var L = this.header * 2;
@@ -3668,6 +3683,7 @@ var JSEncryptExports = {};
             this.coeff = t.coeff
         }
     };
+
     var bx = function (t) {
         A.call(this);
         if (t) {
@@ -3680,8 +3696,12 @@ var JSEncryptExports = {};
             }
         }
     };
+
+
     bx.prototype = new A();
     bx.prototype.constructor = bx;
+
+
     var a3 = function (t) {
         t = t || {};
         this.default_key_size = parseInt(t.default_key_size) || 1024;
@@ -3740,15 +3760,16 @@ var JSEncryptExports = {};
     };
     ap.JSEncrypt = a3
 })(JSEncryptExports);
+
 var JSEncrypt = JSEncryptExports.JSEncrypt;
 
-function getPwd2(pwd,loginPBK) {
-    try{
-    var encrypt = new JSEncrypt();
-    encrypt.setPublicKey(loginPBK);
-    var pwd2 = encrypt.encrypt(pwd);
-    }catch (exception){
-        document.write(exception.toString()+"<br>");
+function suningEncrypt(pwd, loginPBK) {
+    try {
+        var encrypt = new JSEncrypt();
+        encrypt.setPublicKey(loginPBK);
+        var pwd2 = encrypt.encrypt(pwd);
+    } catch (exception) {
+        //document.write(exception.toString() + "<br>");
     }
     return pwd2;
 }
