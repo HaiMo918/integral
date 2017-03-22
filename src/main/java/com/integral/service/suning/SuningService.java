@@ -3,6 +3,7 @@ package com.integral.service.suning;
 import com.alibaba.fastjson.JSONObject;
 import com.integral.utils.*;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Created by kris on 2017/1/15.
  */
+@Service
 public class SuningService implements IQueryIntegral {
     private static ScriptEngineManager sem;
     private static ScriptEngine se;
@@ -130,8 +132,8 @@ public class SuningService implements IQueryIntegral {
         String len = String.valueOf(data.length);
         final String url = "https://passport.suning.com/ids/login";
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setHostnameVerifier(mhv);
-        connection.setSSLSocketFactory(sslContext.getSocketFactory());
+//        connection.setHostnameVerifier(mhv);
+//        connection.setSSLSocketFactory(sslContext.getSocketFactory());
         connection.setDoOutput(true);
         connection.setRequestMethod(Constants.REQUEST_METHOD_POST);
         connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
@@ -139,6 +141,7 @@ public class SuningService implements IQueryIntegral {
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE,"application/x-www-form-urlencoded; charset=UTF-8");
         connection.setRequestProperty(Constants.HttpHeaders.COOKIE,Common.buildCookieString(cookie));
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_LENGTH,len);
+        connection.setRequestProperty(Constants.HttpHeaders.REFERER,"https://passport.suning.com/ids/login?service=https%3A%2F%2Fssl.suning.com%2Fwebapp%2Fwcs%2Fstores%2Fauth%3FtargetUrl%3Dhttp%253A%252F%252Fsearch.suning.com%252F%2525E7%2525A7%2525AF%2525E5%252588%252586%2525E5%252595%252586%2525E5%25259F%25258E%252F%253Fsrc%253Dssds_%2525E7%2525A7%2525AF%2525E5%252588%252586%2525E5%252585%252591%2525E6%25258D%2525A2_recreword_1-2_c_0000000000_%2525E7%2525A7%2525AF%2525E5%252588%252586%2525E5%252595%252586%2525E5%25259F%25258E_0&method=GET&loginTheme=b2c");
 
         OutputStream os = connection.getOutputStream();
         os.write(data);
@@ -239,22 +242,22 @@ public class SuningService implements IQueryIntegral {
     }
 
 
-    public static void main(String[] args){
-        try{
-            JfRequest request = new JfRequest();
-            request.setAccount("18516318026");
-            request.setPassword("wgy123");
-            SuningService suningService = new SuningService();
-            JfResult result = suningService.requestVerifyCode(request);
-            if (!"".equals(result.getData())){
-                System.out.println("请输入验证码");
-                Scanner scanner = new Scanner(System.in);
-                request.setCode(scanner.nextLine());
-            }
-            result = suningService.queryIntegral(request);
-            System.out.println("[苏宁积分]："+result.getPoints());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args){
+//        try{
+//            JfRequest request = new JfRequest();
+//            request.setAccount("18516318026");
+//            request.setPassword("wgy123");
+//            SuningService suningService = new SuningService();
+//            JfResult result = suningService.requestVerifyCode(request);
+//            if (!"".equals(result.getData())){
+//                System.out.println("请输入验证码");
+//                Scanner scanner = new Scanner(System.in);
+//                request.setCode(scanner.nextLine());
+//            }
+//            result = suningService.queryIntegral(request);
+//            System.out.println("[苏宁积分]："+result.getPoints());
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//    }
 }

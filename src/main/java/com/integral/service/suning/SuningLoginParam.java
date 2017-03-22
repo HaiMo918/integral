@@ -1,5 +1,7 @@
 package com.integral.service.suning;
 
+import java.net.URLEncoder;
+
 /**
  * Created by kris on 2017/3/21.
  */
@@ -15,8 +17,20 @@ public class SuningLoginParam {
 
 
     @Override
-    public String toString() {
-        return "username="+username+"&password="+password+"&password2="+password2+"&loginTheme="+loginTheme
-                +"&service="+service+"&rememberMe="+rememberMe+"&client="+client;
+    public String toString(){
+        String s = null;
+        try{
+            s= "jsonViewType="+jsonViewType
+                    +"&username="+username
+                    +"&password="+password
+                    +"&password2="+ URLEncoder.encode(password2,"UTF-8")
+                    +"&loginTheme="+loginTheme
+                    +"&service="+URLEncoder.encode(service,"UTF-8")
+                    +"&rememberMe="+rememberMe
+                    +"&client="+client;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return s;
     }
 }

@@ -37,7 +37,7 @@ public class TestCases {
         JfRequest request = new JfRequest();
         request.setPassword("110425");
         request.setAccount("350125198803130343");
-        request.setCode("p6sbp4");
+        request.setCode("asaxsn");
         NameValuePair nameValueair = new BasicNameValuePair("data", Decrypter.getInstance().encrypt(request));
         String result = Request.Post(BASE_URL + "/request_pf_code").bodyForm(nameValueair).execute().returnContent().asString();
         System.out.println(result);
