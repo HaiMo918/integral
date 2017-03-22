@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link rel='stylesheet' type='text/css'
+          href='//member.vipstatic.com/css/public/myi/1/common.css?e6f56a9441ef067ce944fc77bad1d148'>
+    <link rel='stylesheet' type='text/css'
+          href='//member.vipstatic.com/css/public/myi/1/vipmoney.css?3cdd6afb866dc59c591b6aa7584f678f'>
+    <script type='text/javascript'
+            src='//member.vipstatic.com/js/public/jquery-1.10.2.js?970f98af73e4014ff93782667bae6bd4'></script>
+    <script type='text/javascript'
+            src='//member.vipstatic.com/js/public/core3.js?492bbb23df732028553cf478505126a9'></script>
+    <title>唯品币</title></head>
+<body>
+<div class="public-header public-header-loading"></div>
+<div class="m-wrap clearfix"><!--侧边导航开始-->
+    <div class="m-wrap-left">
+        <script type='text/javascript'
+                src='//user.vipstatic.com/js/header-sidebar.js?69b78c16d5d7485d37746b2d35dc479f'></script>
+    </div><!--侧边导航结束--><!--主体开始-->
+    <div class="m-wrap-right ">
+        <div class="u-content-title"><h3><a href="/">我的唯品会 </a><span class="split">&gt; </span>唯品币</h3>
+            <h2><i class="vipFont if-info">&#xe607;</i><a href="https://help.vip.com/themelist.php?type=detail&id=424"
+                                                          target="_blank">什么是唯品币？ 如何获取更多唯品币？</a></h2></div>
+        <!--积分&唯品币开始-->
+        <div id="point-container" class="vip-money">
+            <div class="loading-status"><span class="loading-pic"><i class="ii-loading-pink-16x16"></i>加载中...</span>
+            </div>
+            <div class="error-status hidden"><span><i class="vipFont if-sigh if-size-32">&#xe603;</i>加载失败~<a
+                    href="javascript:;" func="btn_refreshpoint">立即刷新</a></span></div>
+            <div class="nothing-status hidden"><span><i class="vipFont if-sigh if-size-32">&#xe603;</i>您当前账户无唯品币，去<a
+                    href="//www.vip.com/" target="_blank">首页逛逛</a>吧</span></div>
+            <div class="vip-money-container normal-status hidden"><span href="//www.vip.com/"
+                                                                        class="hot-activity hidden"><img
+                    src="//member.vipstatic.com/img/myi/vip-icon-money.gif"></span>
+                <ul class="clearfix">
+                    <li class="vipmoney-list"><span class="title">唯品币总数：</span>
+                        <ul>
+                            <li func="total" class="vipmoney-list-li vip-money-total">0</li>
+                        </ul>
+                    </li>
+                    <li class="vipmoney-list use"><span class="title">可用唯品币：</span><i class="vipFont if-query new-tips">
+                        &#xe605;</i>
+                        <div class="ui-tooltips ui-tooltips-bottom-left-arrow a-tip">
+                            <div class="ui-tooltips-arrow"><i class="arrow arrow-out">&#9670;</i><i class="arrow">
+                                &#9670;</i></div>
+                            <div class="ui-tooltips-content"><h4 class="a-tip-head">什么是可用唯品币？</h4>
+                                <p class="a-tip-body">
+                                    购物所赠送的唯品币，在订单状态为“已完成”或者“已退款”后的24小时内，获赠的唯品币自动解冻为可用状态。供应商发货的订单，请您签收后到“订单管理”点击确认，以便唯品币及时解冻。</p>
+                            </div>
+                        </div>
+                        <ul>
+                            <li func="usable" class="vipmoney-list-li">0</li>
+                        </ul>
+                    </li>
+                    <li class="vipmoney-list use list-third"><span class="title">冻结的唯品币：</span><i
+                            class="vipFont if-query new-tips">&#xe605;</i>
+                        <div class="ui-tooltips ui-tooltips-bottom-right-arrow a-tip freeze-vipmoney-tips">
+                            <div class="ui-tooltips-arrow"><i class="arrow arrow-out">&#9670;</i><i class="arrow">
+                                &#9670;</i></div>
+                            <div class="ui-tooltips-content">
+                                <div class="a-tip-head">什么是冻结的唯品币？</div>
+                                <p class="a-tip-body">订单未完成或未完成退款时，该订单相应获赠的唯品币处于冻结状态，暂时不可使用。</p></div>
+                        </div>
+                        <ul>
+                            <li func="freeze" class="vipmoney-list-li">0</li>
+                        </ul>
+                    </li>
+                    <li class="vipmoney-list mon-disabled list-four"><span class="title">即将过期的唯品币：</span><i
+                            class="vipFont if-query new-tips">&#xe605;</i>
+                        <div class="ui-tooltips ui-tooltips-bottom-right-arrow a-tip freeze-vipmoney-tips">
+                            <div class="ui-tooltips-arrow"><i class="arrow arrow-out">&#9670;</i><i class="arrow">
+                                &#9670;</i></div>
+                            <div class="ui-tooltips-content">
+                                <div class="a-tip-head">什么是即将过期唯品币？</div>
+                                <p class="a-tip-body">将会在今年12月31日过期的唯品币个数，使用唯品币时，将优先使用即将过期的唯品币。</p></div>
+                        </div>
+                        <ul>
+                            <li func="pass" class="vipmoney-list-li">0</li>
+                        </ul>
+                        <p class="text">将于12月31日过期</p></li>
+                </ul>
+                <div class="m-vip-coin-tip J-vip-coin-tip"><span
+                        class="u-user-level-icon J-user-level-icon"></span><span
+                        class="u-vip-coin-info J-vip-coin-info"></span><a class="u-vip-tip-link J-vip-tip-link"
+                                                                          target="_blank"></a></div>
+            </div>
+        </div><!--积分&唯品币结束-->
+        <div class="inet-notion"><span class="ui-tips nobg"></span></div><!--积分&唯品币模块开始-->
+        <div id="money-list" class="vip-money-tab">
+            <div class="tab-header">
+                <div class="tab-tag clearfix">
+                    <ul class="J_tab tab-tag-list">
+                        <li mars_sead="282|2|2|1" class="active">全部唯品币</li>
+                        <li mars_sead="282|2|2|2">收入唯品币</li>
+                        <li mars_sead="282|2|2|3">支出唯品币</li>
+                    </ul><!--如果没有查询条件，该模块可删除。-->
+                    <div class="ui-dropdown ui-dropdown-float ui-dropdown-date" data-hover="ui-dropdown-float-hover">
+                        <div class="ui-dropdown-hd f-text-center"><a href="javascript:;" role="button" title="最近三个月"
+                                                                     class="ui-dropdown-current">最近三个月</a><i
+                                class="vipFont i-arrow-up">&#xe615;</i><i class="vipFont i-arrow-down">&#xe616;</i>
+                        </div>
+                        <div class="ui-dropdown-bd">
+                            <ul class="ui-dropdown-menu">
+                                <li><a data-value="1" mars_sead="282|2|2|4.2" href="javascript:;" title="最近三个月"
+                                       role="button">最近三个月</a></li>
+                                <li><a data-value="2" mars_sead="282|2|2|4.3" href="javascript:;" title="最近一年"
+                                       role="button">最近一年</a></li>
+                                <li><a data-value="3" mars_sead="282|2|2|4.1" href="javascript:;" title="全部日期"
+                                       role="button">全部日期</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div><!--积分&唯品币列表开始-->
+            <div class="table-tab clearfix">
+                <ul>
+                    <li class="date">日期</li>
+                    <li class="income-pay">收入/支出</li>
+                    <li class="order-num">对应订单号</li>
+                    <li class="detail">详细说明</li>
+                </ul>
+            </div>
+            <table class="vipmoney-table">
+                <tbody class="loading-status">
+                <tr>
+                    <td colspan="4"><span><i class="ii-loading-pink-16x16"></i>加载中... </span></td>
+                </tr>
+                </tbody>
+            </table>
+            <table>
+                <tfoot class="hidden">
+                <tr>
+                    <td colspan="4">
+                        <div class="common-page vipmoney-common-page"><span>共582条</span><a href="javascript:;">
+                            &lt;</a><a href="javascript:;">1</a><a href="javascript:;">2</a><a href="javascript:;"
+                                                                                               class="on">3</a><span
+                                class="ellipsis">...</span><a href="javascript:;">10</a><a href="javascript:;"
+                                                                                           class="next">&gt;</a></div>
+                    </td>
+                </tr>
+                </tfoot>
+            </table><!--积分&唯品币列表结束-->
+            <div class="tab-annotation"> 注：本年度获取的唯品币有效期至次年年底，逾期自动清零<br/>
+                （如唯品币获取时间为2015年9月30日，有效期至2016年12月31日，2017年1月1日过期清零）
+            </div><!--积分&唯品币模块结束-->
+            <script type="text/html" id="vipmoneychange">
+                <div
+                class="show-content f-in-block">
+                <div class="contain_a">
+                    <div class="cardchange-contain-text"><span class="ui-checkbox"><input type="checkbox"
+                                                                                          id="vipmoney_cb" checked
+                                                                                          class="ui-checkbox-normal"><label
+                            for="vipmoney_cb" class="ui-checkbox-simulation"></label></span><label for="vipmoney_cb"
+                                                                                                   class="ui-label cardchange-label">可用积分：</label>
+                    </div>
+                    <input type="text" disabled class="ui-input z-ui-input-disable">
+                    <p class="cardchange-tips">可兑换<span></span>个唯品币</p></div>
+                <div class="contain_b">
+                    <div class="cardchange-contain-text"><span class="ui-checkbox"><input type="checkbox"
+                                                                                          id="giftcard_cb" checked
+                                                                                          class="ui-checkbox-normal"><label
+                            for="giftcard_cb" class="ui-checkbox-simulation"></label></span><label for="giftcard_cb"
+                                                                                                   class="ui-label">礼品卡余额：</label>
+                    </div>
+                    <input type="text" disabled class="ui-input z-ui-input-disable">
+                    <p class="cardchange-tips">可兑换<span></span>个唯品币</p></div></div></script>
+            <script type="text/html" id="changesuccess"><h3 class="ui-dialog-tips f-text-center"><span class="text"><i
+                    class="vipFont if-success if-size-32">&#xe602;</i><span>兑换成功！</span></span></h3><p
+                    class="f-text-center"><span class="J_second count-down-second">3</span>秒后自动关闭弹窗</p></script>
+            <script type="text/html" id="changeerror"><h3 class="ui-dialog-tips f-text-center"><span class="text"><i
+                    class="vipFont if-sigh if-size-32">&#xe603;</i><span>{{msg}}</span></span></h3><p
+                    class="f-text-center"><span class="J_second count-down-second">3</span>秒后自动关闭弹窗</p></script>
+            <script type="text/html" id="J_loading_tmp">
+                <tr>
+                    <td
+                    colspan="4"><span><i class="ii-loading-pink-16x16"></i>加载中... </span></td></tr>
+            </script>
+            <script type="text/html" id="J_error_tmp">
+                <tr>
+                    <td
+                    colspan="4"><span><i class="vipFont if-sigh if-size-32">&#xe603;</i>加载失败~<a href="javascript:;"
+                                                                                                class="btn_refreshlist">立即刷新</a></span></td></tr>
+            </script>
+            <script type="text/html" id="J_nothing_tmp">
+                <tr>
+                    <td
+                    colspan="4"><span><i class="vipFont if-sigh if-size-32">&#xe603;</i>你当前没有唯品币交易记录 </span></td></tr>
+            </script><!-- 列表 -->
+            <script type="text/html" id="J-list-tr-tpl"> {{each items as value i}}
+            <tr class="vipmoney-table-tr {{value.tdColor}} {{value.classStr}}">
+                <td class="time ">{{value.create_time}}
+                <td class="price">{{value.amount}}{{value.dateOut}}</td>
+                <td class="order-number">{{value.order}}</td>
+                <td class="detail-explain">{{value.activitys}}{{value.remark}} {{value.detailbtn}}</td>
+                </td></tr>
+            <tr class="J-detail {{value.tdColor}}"></tr> {{/each}} </script><!-- 详情 -->
+            <script type="text/html" id="J-detail-tpl">
+                <td
+                colspan="4" class="details-td" ><span class="triangle-up"></span>
+                <table class="income-pay-details">
+                    <tbody class="J-details"></tbody>
+                    <tfoot class="normal-tfoot">
+                    <tr>
+                        <td colspan="4" class="details-get-more"><span class="J-getMore get-more-click"><span
+                                class="J-getMoreTxt" mars_sead="233|4|2|3">更多</span><span
+                                class="vipFont if-arrow-bottom">&#xe616;</span><span class="vipFont if-arrow-up">&#xe615;</span></span>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table></td></script>
+            <script type="text/html" id="J-details-tpl"> {{each items as value i}}
+            <tr class="details-normal">
+                <td class="details-td1"></td>
+                <td class="details-td2 price">{{value.amount}}</td>
+                <td class="details-td3"></td>
+                <td class="details-td4"><p title="{{value.act_name}}">{{value.act_name}}</p></td>
+            </tr> {{/each}} </script>
+        </div>
+    </div><!--主体结束--></div>
+<script type='text/javascript'
+        src='//member.vipstatic.com/js/public/myi/1/vipmoney.js?96724825965fb4f7cd32fc03aa31c9b6'></script>
+</body>
+</html>
