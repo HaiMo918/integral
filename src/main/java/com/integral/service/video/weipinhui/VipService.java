@@ -57,7 +57,7 @@ public class VipService implements IQueryIntegral{
 
     private VipLoginData firstLoginWithOutCaptcha(Map<String, String> cookie,String user,String password) throws Exception{
         final String url = "https://passport.vip.com/login";
-        final String param = "loginName="+user+"&password="+password+"&remUser=1&vipc=&captcha=";
+        final String param = "loginName="+user+"&password="+password+"&remUser=0&vipc=&captcha=";
         byte[] data = param.getBytes();
         String len = String.valueOf(data.length);
         HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
@@ -76,7 +76,6 @@ public class VipService implements IQueryIntegral{
         os.flush();
         os.close();
 
-        Common.updateCookie(connection,cookie);
         String body = Common.inputStreamToString(connection.getInputStream());
         VipLoginResponse object = JSONObject.parseObject(body,VipLoginResponse.class);
         VipLoginData data1 = JSONObject.parseObject(object.data,VipLoginData.class);
@@ -87,7 +86,7 @@ public class VipService implements IQueryIntegral{
     public JfResult queryIntegral(JfRequest request) throws Exception {
         JfResult result = new JfResult();
         Map<String,String> cookie = mVipCookie.get(request.getAccount());
-        JSONObject validCaptchaCode = checkNeedCaptcha(cookie,request.getCode());
+        JSONObject validCaptchaCode = checkValidCaptcha(cookie,request.getCode());
         if (!validCaptchaCode.getBooleanValue("result")){
             result.setMessage("[唯品会]验证码错误");
             return result;
@@ -147,7 +146,7 @@ public class VipService implements IQueryIntegral{
     }
 
 
-    private JSONObject checkNeedCaptcha(Map<String,String> cookie,String captcha) throws Exception{
+    private JSONObject checkValidCaptcha(Map<String,String> cookie, String captcha) throws Exception{
         String originVipc = cookie.get("vipc");
         cookie.remove("vipc");
         final String url = "https://passport.vip.com/captcha/ajaxCheckCaptcha";
@@ -158,9 +157,13 @@ public class VipService implements IQueryIntegral{
         connection.setDoOutput(true);
         connection.setRequestProperty(Constants.HttpHeaders.USER_AGENT,Constants.DEFAULT_UA);
         connection.setRequestProperty(Constants.HttpHeaders.ACCEPT,"application/json, text/javascript, */*; q=0.01");
+        connection.setRequestProperty(Constants.HttpHeaders.ACCEPT_ENCODING,"gzip, deflate, br");
+        connection.setRequestProperty(Constants.HttpHeaders.ACCEPT_LANGUAGE,"zh-CN,zh;q=0.8");
+
         connection.setRequestProperty(Constants.HttpHeaders.REFERER,"https://passport.vip.com/login?src=http%3A%2F%2Fwww.vip.com%2F");
 
-        byte[] data = ("captcha="+captcha+"&vipc="+URLEncoder.encode(originVipc,"UTF-8")+"&anticache="+System.currentTimeMillis()+"&type=0").getBytes();
+        String param = "captcha="+captcha+"&vipc="+originVipc+"&anticache="+System.currentTimeMillis()+"&type=0";
+        byte[] data = param.getBytes();
         String len = String.valueOf(data.length);
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_LENGTH,len);
         connection.setRequestProperty(Constants.HttpHeaders.CONTENT_TYPE,"application/x-www-form-urlencoded; charset=UTF-8");
@@ -171,9 +174,8 @@ public class VipService implements IQueryIntegral{
         os.flush();
         os.close();
 
-        Common.updateCookie(connection,cookie);
         cookie.put("vipc",originVipc);
-        String body = Common.inputStreamToString(connection.getInputStream());
+        String body = new String(GZipUtils.decompress(GZipUtils.input2byte(connection.getInputStream())));
         JSONObject object = JSONObject.parseObject(body);
         return object;
     }
