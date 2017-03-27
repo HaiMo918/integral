@@ -31,6 +31,10 @@ public class JfResult {
      */
     private String reason = null;
 
+    private String data1;
+
+
+
     public String getData() {
         return data;
     }
@@ -77,5 +81,13 @@ public class JfResult {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getData1() {
+        return data1;
+    }
+
+    public void setData1(String data1) {
+        this.data1 = data1;
     }
 }
